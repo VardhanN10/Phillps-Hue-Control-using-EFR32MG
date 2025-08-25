@@ -67,7 +67,7 @@ After configuring the endpoints, save your changes and build the project. Once t
 
 ## 4. Controlling the Hue Bulb with Board Buttons  
 
-In this version, the application is fully event-driven. The board handles network creation, joining, and control without any CLI commands.  
+In this version, the application is fully event driven. The board handles network creation, joining, and control without any CLI commands.  
 
 ### Step 1. Create and open the network with BTN0  
 
