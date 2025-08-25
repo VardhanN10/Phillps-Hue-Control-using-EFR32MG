@@ -14,33 +14,69 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
+
+/* -----------------------------------------------------------------------------
+ *  Module: Philips Hue control (EFR32MG, Zigbee)
+ *
+ *  Overview
+ *  - BTN0: Create the Zigbee network and open it for joining (event-driven).
+ *  - BTN1: Send ZCL On/Off Toggle to the Hue bulb using its captured short ID.
+ *
+ *  Data Flow
+ *  - Trust Center join callback stores the Hue bulb short ID after join.
+ *  - Main tick polls button flags -> dispatches actions (create network / toggle).
+ *
+ *  Notes
+ *  - The code below intentionally retains original behaviour and print messages.
+ *  - CLI equivalents (for reference only):
+ *      plugin network-creator start 1
+ *      plugin network-creator-security open-network
+ * ---------------------------------------------------------------------------*/
+
+// === Includes ================================================================ //
+
 #include "app/framework/include/af.h"
 #include "sl_simple_button.h"
 #include "sl_simple_button_instances.h"
 #include "app/framework/plugin/network-creator/network-creator.h"
 #include "app/framework/plugin/network-creator-security/network-creator-security.h"
 
+// === Configuration / Mappings ===============================================
+
 /*** Variables for Button Change Interrupts**/
+/**
+ * @brief Logical indices used by Simple Button instances.
+ * BTN0: triggers network create/open event.
+ * BTN1: sends On/Off Toggle to the stored Hue node ID.
+ */
+
 #define BUTTON0 0
 #define BUTTON1 1
+
+/** @brief Button flags set on RELEASE; consumed in emberAfMainTickCallback(). */
 volatile bool button0Pressed;
 volatile bool button1Pressed;
-/*********************/
+
 
 
 /*** Variables for Phillps hue bulb**/
+/**
+ * @brief Hue bulb endpoint used for ZCL On/Off cluster (typical = 11).
+ * @note Keep consistent with ZAP configuration.
+ */
 #define HUE_BULB_ENDPOINT 11
+/** @brief Short ID of the Hue bulb; captured in Trust Center join callback. */
 EmberNodeId hueNodeId = EMBER_NULL_NODE_ID;
-/*************/
 
 
 /** EVENT declare**/
+/**
+ * @brief Event used to create/open the network when BTN0 is pressed.
+ * createNetworkFunc() performs the action when the event fires.
+ */
 
 static sl_zigbee_event_t createNetwork;
 static void createNetworkFunc(sl_zigbee_event_t *event);
-
-/*****/
-
 
 
 //*AUTO GEN CODE**//
@@ -80,7 +116,15 @@ void emberAfRadioNeedsCalibratingCallback(void)
 
 ////AUTO GEN CODE- END/////////
 
+// === Buttons ================================================================
 
+/**
+ * @brief Simple Button change callback.
+ *
+ * Sets button flags on RELEASE; actual work is done in the main tick.
+ * - BUTTON0 -> create/open network (via event).
+ * - BUTTON1 -> toggle Hue bulb using stored short ID.
+ */
 
 void sl_button_on_change(const sl_button_t *handle)
 {
@@ -96,7 +140,16 @@ void sl_button_on_change(const sl_button_t *handle)
   }
 }
 
+// === Application actions =====================================================
 
+/**
+ * @brief Dispatches actions based on button flags.
+ *
+ * - If BTN0 was released: schedule createNetwork event.
+ * - If BTN1 was released: send ZCL Toggle to Hue bulb (if joined).
+ *
+ * @note Keeps original behaviour and print messages.
+ */
 
 void sendMessage()
 {
@@ -137,7 +190,18 @@ if (button1Pressed)
 }
 }
 
+// === Event handler ===========================================================
 
+/**
+ * @brief Event function that creates the network and (indirectly) opens join.
+ *
+ * Behaviour:
+ * - If not in a network: start Network Creator (centralized).
+ * - If already in a network: print status (original behaviour).
+ *
+ * @note Opening the network (join window) happens when stack goes up
+ *       inside emberAfStackStatusCallback().
+ */
 static void createNetworkFunc(sl_zigbee_event_t *event)
 {
 
@@ -167,7 +231,14 @@ static void createNetworkFunc(sl_zigbee_event_t *event)
   }
 
 }
+// === Stack callbacks =========================================================
 
+/**
+ * @brief Stack status change callback.
+ *
+ * On EMBER_NETWORK_UP, opens the network for joining.
+ * Equivalent to CLI: plugin network-creator-security open-network
+ */
 void emberAfStackStatusCallback(EmberStatus status)
 {
 
@@ -177,6 +248,12 @@ void emberAfStackStatusCallback(EmberStatus status)
     emberAfCorePrintln("open-network -> 0x%02X", sec);
   }
 }
+
+/**
+ * @brief Main periodic tick.
+ *
+ * Checks button flags and triggers the corresponding actions.
+ */
 void emberAfMainTickCallback(void){
 
   if (button0Pressed || button1Pressed)
@@ -199,7 +276,14 @@ void emberAfMainInitCallback(void)
   sl_zigbee_event_init(&createNetwork, createNetworkFunc);
 }
 
-
+/**
+ * @brief Trust Center join callback.
+ *
+ * Captures and stores the short ID of newly joined devices (Hue bulb).
+ * The stored short ID is used later for direct unicast control.
+ *
+ * @note Original print uses the provided format string exactly as in source.
+ */
 void emberAfTrustCenterJoinCallback(EmberNodeId newNodeId,
                                     EmberEUI64 newNodeEui64,
                                     EmberNodeId parentOfNewNode,
