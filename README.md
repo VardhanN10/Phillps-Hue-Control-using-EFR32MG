@@ -78,8 +78,19 @@ When **BTN0** is pressed, the firmware schedules an event that:
 
 This replaces the CLI commands `plugin network-creator start 1` and `plugin network-creator-security open-network`.  
 
-*Screenshot placeholder:*  
-`![BTN0 flow](Documents/hue-btn0-flow.png)`  
+```mermaid
+flowchart TD
+    A[BTN0 pressed] --> B[Set createNetwork event active]
+    B --> C{Check network state}
+    C -- No network --> D[Start Network Creator]
+    D --> E{Creation success?}
+    E -- Yes --> F[Stack up callback]
+    F --> G[Open network for joining]
+    G --> H[Join window open]
+    E -- No --> E1[Print Network Creation failed]
+    C -- Already in network --> C1[Print Already in a network]
+
+````  
 
 > Note  
 > A **centralized Zigbee network** is used, with the coordinator also acting as the Trust Center. This ensures stable key handling and predictable join behaviour.  
@@ -88,15 +99,14 @@ This replaces the CLI commands `plugin network-creator start 1` and `plugin netw
 
 Put the Hue bulb into pairing mode. Once it joins, the **Serial 1** console will display the join message. The join callback automatically captures the bulb’s **short ID**, so there is no need to enter it manually.  
 
-*Screenshot placeholder:*  
-`![Join indication](Documents/hue-join.png)`  
+
+![Join indication](Documents/hue-6.png)  
 
 ### Step 3. Toggle the bulb with BTN1  
 
 Press **BTN1** to toggle the Hue light. The application fills the Zigbee On/Off command and unicasts it to the stored short ID on the Hue endpoint.  
 
-*Screenshot placeholder:*  
-`![BTN1 control](Documents/hue-btn1.png)`
+
 
 ---
 
