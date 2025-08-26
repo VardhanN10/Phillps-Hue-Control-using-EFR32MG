@@ -64,7 +64,7 @@ Open the **ZAP Tool** and set up the Zigbee endpoints. Create a custom cluster t
 
 After configuring the endpoints, save your changes and build the project. Once the build is complete, flash the generated `.s37` file onto the device.  
 
-
+---
 ## 4. Controlling the Hue Bulb with Board Buttons  
 
 In this version, the application is fully event driven. The board handles network creation, joining, and control without any CLI commands.  
@@ -125,6 +125,7 @@ Use this when the bulb was already joined to a Hue Bridge or another Zigbee netw
 
 After the reset, press **BTN0** on the board to create and open the network. Put the bulb in pairing mode and watch **Serial 1** for the join message. The firmware captures the bulb’s short ID automatically.
 
+---
 ## 5. Project Flow  
 
 The following diagram gives an overview of the entire process, from powering on the board to toggling the Hue bulb:  
