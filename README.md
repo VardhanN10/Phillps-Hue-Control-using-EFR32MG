@@ -56,6 +56,7 @@ From the software components, enable the following:
 
 ![Zigbee Device Configuration](Documents/hue-4.png)  
 
+---
 ## 3. ZCL Advanced Platform (ZAP) Configuration  
 
 Open the **ZAP Tool** and set up the Zigbee endpoints. Create a custom cluster that will be used to communicate with the Philips Hue light.  
