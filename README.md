@@ -99,6 +99,8 @@ flowchart TD
 
 Put the Hue bulb into pairing mode. Once it joins, the **Serial 1** console will display the join message. The join callback automatically captures the bulb’s **short ID**, so there is no need to enter it manually.  
 
+> Tip: If the bulb was previously paired, reset it first using the steps in [Resetting the Philips Hue Bulb](#resetting-the-philips-hue-bulb-if-it-was-paired-before).
+
 
 ![Join indication](Documents/hue-6.png)  
 
@@ -109,6 +111,19 @@ Press **BTN1** to toggle the Hue light. The application fills the Zigbee On/Off 
 
 
 ---
+
+## Resetting the Philips Hue Bulb (if it was paired before)
+
+Use this when the bulb was already joined to a Hue Bridge or another Zigbee network.
+
+1. Install the **Philips Hue** app on your phone and power on the bulb close to the phone.
+2. In the app, go to **Lights → Add light → Scan QR code**. Scan the QR on the bulb or the box.
+   ![Hue app – add light and scan QR](Documents/20250802_225140-COLLAGE.jpg)
+3. When the app shows the light, tap **Next** to connect over Bluetooth.
+4. Open the light’s **Settings**, scroll down, and choose **Reset** (or **Delete**). Confirm the prompt to factory-reset the bulb.
+   ![Hue app – connect and reset](Documents/20250802_225252-COLLAGE.jpg)
+
+After the reset, press **BTN0** on the board to create and open the network. Put the bulb in pairing mode and watch **Serial 1** for the join message. The firmware captures the bulb’s short ID automatically.
 
 ## 5. Project Flow  
 
